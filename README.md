@@ -1,11 +1,20 @@
-# Chuck Jokes (CakePHP 5 + SQLite)
+# 🥊 Chuck Jokes (CakePHP 5 + SQLite)
 
 Aplicación mínima en CakePHP 5 que obtiene un chiste aleatorio de la API pública de Chuck Norris [https://api.chucknorris.io/jokes/random] y permite guardarlo en una base de datos SQLite.
+
+## 📸 Capturas de Pantalla
+
+### Página de Chiste Aleatorio
+![Chiste Aleatorio](docs/screenshots/random-joke.png)
+
+### Lista de Chistes Guardados
+![Chistes Guardados](docs/screenshots/saved-jokes.png)
 
 ## 📋 Índice
 
 - [Requisitos previos](#requisitos-previos)
-- [Crear el proyecto](#crear-el-proyecto)
+- [Instalación en Windows](#instalación-en-windows)
+- [Instalación en Linux](#instalación-en-linux)
 - [Estructura básica de una app CakePHP](#estructura-básica-de-una-app-cakephp)
 - [Configuración de base de datos (SQLite)](#configuración-de-base-de-datos-sqlite)
 - [Migraciones: crear la tabla `jokes`](#migraciones-crear-la-tabla-jokes)
@@ -26,7 +35,114 @@ Aplicación mínima en CakePHP 5 que obtiene un chiste aleatorio de la API públ
 - **Extensión pdo_sqlite** habilitada (viene por defecto en la mayoría de instalaciones)
 - Conocimientos básicos de MVC y PHP orientado a objetos
 
-## 🚀 Crear el proyecto
+## 🪟 Instalación en Windows
+
+### 1. Instalar XAMPP
+
+1. Descarga XAMPP desde [https://www.apachefriends.org/](https://www.apachefriends.org/)
+2. Ejecuta el instalador (recomendado: versión 8.2.12 o superior)
+3. Instala en `C:\xampp` (ruta por defecto)
+
+### 2. Configurar PHP
+
+1. Abre `C:\xampp\php\php.ini` con un editor de texto
+2. Busca y descomenta (quita el `;` al inicio) las siguientes líneas:
+   ```ini
+   extension=intl
+   extension=mbstring
+   extension=pdo_sqlite
+   extension=curl
+   extension=openssl
+   ```
+3. Guarda los cambios
+
+### 3. Instalar Composer
+
+1. Descarga Composer desde [https://getcomposer.org/download/](https://getcomposer.org/download/)
+2. Ejecuta el instalador de Windows
+3. Selecciona el ejecutable PHP de XAMPP: `C:\xampp\php\php.exe`
+4. Finaliza la instalación
+
+### 4. Clonar y configurar el proyecto
+
+```powershell
+# Navega a la carpeta htdocs de XAMPP
+cd C:\xampp\htdocs
+
+# Clona el repositorio
+git clone https://github.com/maximofernandezriera/chuck-jokes.git
+cd chuck-jokes
+
+# Instala las dependencias
+composer install --no-dev
+
+# Crea el directorio tmp si no existe
+New-Item -ItemType Directory -Force -Path tmp
+
+# Crea la base de datos SQLite
+New-Item -ItemType File -Force -Path tmp\database.sqlite
+```
+
+### 5. Configurar la base de datos
+
+Crea el archivo `config/app_local.php` (si no existe) con el siguiente contenido:
+
+```php
+<?php
+return [
+    'Datasources' => [
+        'default' => [
+            'driver' => Cake\Database\Driver\Sqlite::class,
+            'database' => ROOT . DS . 'tmp' . DS . 'database.sqlite',
+            'url' => env('DATABASE_URL', null),
+        ],
+        'test' => [
+            'driver' => Cake\Database\Driver\Sqlite::class,
+            'database' => ROOT . DS . 'tmp' . DS . 'test.sqlite',
+        ],
+    ],
+];
+```
+
+### 6. Ejecutar las migraciones
+
+```powershell
+# Ejecuta las migraciones para crear las tablas
+php bin/cake.php migrations migrate
+
+# Limpia el caché
+php bin/cake.php cache clear_all
+```
+
+### 7. Iniciar el servidor
+
+```powershell
+# Inicia el servidor PHP integrado
+php -S localhost:8765 -t webroot
+```
+
+### 8. Acceder a la aplicación
+
+Abre tu navegador y visita:
+- **Chiste aleatorio**: [http://localhost:8765/jokes/random](http://localhost:8765/jokes/random)
+- **Chistes guardados**: [http://localhost:8765/jokes/index](http://localhost:8765/jokes/index)
+
+### ⚠️ Problema común: Error de BOM en Windows
+
+Si encuentras el error `Fatal error: strict_types declaration must be the very first statement`, es porque el archivo tiene un BOM (Byte Order Mark) UTF-8. Para solucionarlo:
+
+```powershell
+# Navega al directorio del proyecto
+cd C:\xampp\htdocs\chuck-jokes
+
+# Elimina el BOM del archivo JokesController.php
+$content = Get-Content -Path 'src\Controller\JokesController.php' -Raw
+[System.IO.File]::WriteAllText('src\Controller\JokesController.php', $content, [System.Text.UTF8Encoding]::new($false))
+```
+
+## � Instalación en Linux
+
+### 1. Crear el proyecto
 
 ```bash
 cd /home/maximo/repos
